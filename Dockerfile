@@ -4,10 +4,11 @@ FROM oven/bun:latest as base
 # Temporarily switch to root to install system packages
 USER root
 
-# Install Chromium and required fonts/libraries for Puppeteer
+# Install Chromium and required dependencies for Puppeteer
 RUN apt-get update && apt-get install -y \
     chromium \
-    fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+    fonts-freefont-ttf \
+    libxss1 \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
