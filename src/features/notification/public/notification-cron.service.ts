@@ -156,6 +156,9 @@ export class NotificationCronService {
           }
         }
       }
+    } catch (error) {
+      this.logger.error('Error executing Monthly Report Reminder Cron Job', error);
+    }
   }
 
   // 3. Morning Reminder: Setiap hari pukul 07:00 Pagi
