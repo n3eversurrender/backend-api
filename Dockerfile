@@ -26,10 +26,10 @@ WORKDIR /usr/src/app
 FROM base as install
 
 # Install app dependencies
-COPY package.json bun.lock ./
+COPY --chown=bun:bun package.json bun.lock ./
 
 # Bundle app source
-COPY . .
+COPY --chown=bun:bun . .
 
 RUN bun install --silent --production
 
