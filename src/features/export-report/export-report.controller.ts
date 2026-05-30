@@ -37,14 +37,20 @@ export class ExportReportController {
       );
 
       res.set({
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=usage_report_${startDate}_to_${endDate}.pdf`,
+        "Content-Type": "application/octet-stream",
         "Content-Length": pdfBuffer.length,
       });
 
       return res.end(pdfBuffer);
     } catch (error: any) {
       console.error("PDF export failed", error);
+      try {
+        const fs = require('fs');
+        const logMsg = `[${new Date().toISOString()}] Error: ${error.message}\nStack: ${error.stack}\n\n`;
+        fs.appendFileSync('error.log', logMsg);
+      } catch (logErr) {
+        console.error("Failed to write to error.log", logErr);
+      }
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Failed to generate report", error: error.message });

@@ -88,4 +88,46 @@ export class AuthService {
       "Successfully get profile",
     );
   }
+
+  async verifyForgotPassword(username: string, email: string) {
+    try {
+      const user = await this.userModel.findOne({
+        where: { username, email },
+      });
+
+      if (!user) {
+        return this.response.fail("Username and email combination not found.", HttpStatus.NOT_FOUND);
+      }
+
+      return this.response.success({ verified: true }, HttpStatus.OK, "User verified successfully");
+    } catch (error: any) {
+      return this.response.fail(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async resetPassword(username: string, email: string, newPassword: string) {
+    const transaction = await this.sequelize.transaction();
+    try {
+      const user = await this.userModel.findOne({
+        where: { username, email },
+      });
+
+      if (!user) {
+        return this.response.fail("User not found.", HttpStatus.NOT_FOUND);
+      }
+
+      const hashedPassword = await Bun.password.hash(newPassword, {
+        algorithm: "bcrypt",
+        cost: 10,
+      });
+
+      await user.update({ password: hashedPassword }, { transaction });
+      await transaction.commit();
+
+      return this.response.success(null, HttpStatus.OK, "Password reset successfully!");
+    } catch (error: any) {
+      await transaction.rollback();
+      return this.response.fail(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

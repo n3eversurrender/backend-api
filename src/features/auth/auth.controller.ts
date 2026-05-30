@@ -1,10 +1,10 @@
 import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Request,
-  UseGuards,
+    Body,
+    Controller,
+    Get,
+    Post,
+    Request,
+    UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/cores/decorators/current-user.decorator';
 import { JwtAuthGuard } from 'src/cores/guards/jwt-auth.guard';
@@ -35,5 +35,19 @@ export class AuthController {
   @Get('profile')
   profile(@CurrentUser() user) {
     return this.authService.profile(user);
+  }
+
+  @Post('forgot-password/verify')
+  async verifyForgotPassword(
+    @Body() body: { username: string; email: string }
+  ) {
+    return this.authService.verifyForgotPassword(body.username, body.email);
+  }
+
+  @Post('forgot-password/reset')
+  async resetPassword(
+    @Body() body: { username: string; email: string; newPassword: string }
+  ) {
+    return this.authService.resetPassword(body.username, body.email, body.newPassword);
   }
 }
