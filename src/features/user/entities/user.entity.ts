@@ -3,6 +3,7 @@ import {
   DataType,
   DefaultScope,
   Model,
+  PrimaryKey,
   Table,
 } from "sequelize-typescript";
 
@@ -21,6 +22,14 @@ import {
   },
 }))
 export class User extends Model {
+  @PrimaryKey
+  @Column({
+    type: DataType.BIGINT,
+    autoIncrement: true,
+    primaryKey: true,
+  })
+  id: number;
+
   @Column(DataType.STRING)
   name: string;
 
