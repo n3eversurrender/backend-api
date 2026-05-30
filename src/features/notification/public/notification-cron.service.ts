@@ -156,8 +156,61 @@ export class NotificationCronService {
           }
         }
       }
+  }
+
+  // 3. Morning Reminder: Setiap hari pukul 07:00 Pagi
+  @Cron('0 7 * * *')
+  async handleMorningReminder() {
+    this.logger.log('Running Morning Reminder Cron Job...');
+    try {
+      const d = new Date();
+      const tzOffset = d.getTimezoneOffset() * 60000;
+      const todayStr = new Date(d.getTime() - tzOffset).toISOString().split('T')[0];
+
+      // Dapatkan semua user biasa (role !== 1 atau yang bukan admin)
+      const users = await this.userModel.findAll({
+        where: {
+          role: { [Op.ne]: 1 },
+        },
+      });
+
+      for (const user of users) {
+        // Cek apakah user memiliki minimal 1 device aktif
+        const activeDevicesCount = await this.deviceModel.count({
+          where: {
+            user_id: user.id,
+            is_active: true,
+          },
+        });
+
+        if (activeDevicesCount === 0) {
+          continue;
+        }
+
+        // Pastikan belum dikirimi notifikasi serupa hari ini
+        const alreadyNotified = await this.notificationModel.count({
+          where: {
+            notified_user_id: user.id,
+            type: 'morning_reminder',
+            created_at: {
+              [Op.gte]: new Date(todayStr + 'T00:00:00.000Z'),
+            },
+          },
+        });
+
+        if (alreadyNotified === 0) {
+          this.eventEmitter.emit('notification', ['system'], {
+            type: 'morning_reminder',
+            notified_user_id: user.id,
+            message: 'Selamat pagi! Mulai hari Anda dengan memantau dan menghemat penggunaan energi listrik perangkat Anda agar tetap efisien.',
+            data: { action: 'view_dashboard' },
+          });
+          this.logger.log(`Sent morning reminder to User ID ${user.id}`);
+        }
+      }
     } catch (error) {
-      this.logger.error('Error executing Monthly Report Reminder Cron Job', error);
+      this.logger.error('Error executing Morning Reminder Cron Job', error);
     }
   }
 }
+
