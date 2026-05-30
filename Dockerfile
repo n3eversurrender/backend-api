@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
 # Switch back to bun user
 USER bun
 
+# Switch back to bun user
 # Set Puppeteer environment variables
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
