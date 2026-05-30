@@ -63,7 +63,7 @@ export default class SequelizeConfig {
           member.toLowerCase()
         );
       },
-      synchronize: false,
+      synchronize: true,
     };
   }
 }
