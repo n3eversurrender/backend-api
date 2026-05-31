@@ -21,7 +21,8 @@ export class NotificationCronService {
   ) {}
 
   // 1. Daily Reminder: Setiap hari pukul 20:00 (8 Malam)
-  @Cron('0 20 * * *')
+  // TODO: TESTING - ganti ke production: @Cron('0 20 * * *')
+  @Cron('* * * * *')
   async handleDailyReminder() {
     this.logger.log('Running Daily Reminder Cron Job...');
     try {
@@ -66,18 +67,18 @@ export class NotificationCronService {
 
         // Jika belum mengisi pemakaian hari ini
         if (loggedToday === 0) {
-          // Pastikan belum dikirimi notifikasi serupa hari ini
-          const alreadyNotified = await this.notificationModel.count({
-            where: {
-              notified_user_id: user.id,
-              type: 'daily_reminder',
-              created_at: {
-                [Op.gte]: new Date(todayStr + 'T00:00:00.000Z'),
-              },
-            },
-          });
+          // TODO: TESTING - uncomment pengecekan duplikasi untuk production
+          // const alreadyNotified = await this.notificationModel.count({
+          //   where: {
+          //     notified_user_id: user.id,
+          //     type: 'daily_reminder',
+          //     created_at: {
+          //       [Op.gte]: new Date(todayStr + 'T00:00:00.000Z'),
+          //     },
+          //   },
+          // });
 
-          if (alreadyNotified === 0) {
+          // if (alreadyNotified === 0) {
             this.eventEmitter.emit('notification', ['system'], {
               type: 'daily_reminder',
               notified_user_id: user.id,
@@ -85,7 +86,7 @@ export class NotificationCronService {
               data: { action: 'log_usage' },
             });
             this.logger.log(`Sent daily reminder to User ID ${user.id}`);
-          }
+          // }
         }
       }
     } catch (error) {
@@ -94,7 +95,8 @@ export class NotificationCronService {
   }
 
   // 2. Monthly Reminder: Setiap tanggal 1 pukul 08:00 Pagi
-  @Cron('0 8 1 * *')
+  // TODO: TESTING - ganti ke production: @Cron('0 8 1 * *')
+  @Cron('* * * * *')
   async handleMonthlyReportReminder() {
     this.logger.log('Running Monthly Report Reminder Cron Job...');
     try {
@@ -133,19 +135,19 @@ export class NotificationCronService {
         });
 
         if (usageCount > 0) {
-          // Cek apakah sudah pernah dikirimi notifikasi bulan ini
-          const currentMonthStr = new Date().toISOString().split('T')[0].slice(0, 7);
-          const alreadyNotified = await this.notificationModel.count({
-            where: {
-              notified_user_id: user.id,
-              type: 'monthly_reminder',
-              created_at: {
-                [Op.gte]: new Date(currentMonthStr + '-01T00:00:00.000Z'),
-              },
-            },
-          });
+          // TODO: TESTING - uncomment pengecekan duplikasi untuk production
+          // const currentMonthStr = new Date().toISOString().split('T')[0].slice(0, 7);
+          // const alreadyNotified = await this.notificationModel.count({
+          //   where: {
+          //     notified_user_id: user.id,
+          //     type: 'monthly_reminder',
+          //     created_at: {
+          //       [Op.gte]: new Date(currentMonthStr + '-01T00:00:00.000Z'),
+          //     },
+          //   },
+          // });
 
-          if (alreadyNotified === 0) {
+          // if (alreadyNotified === 0) {
             this.eventEmitter.emit('notification', ['system'], {
               type: 'monthly_reminder',
               notified_user_id: user.id,
@@ -153,7 +155,7 @@ export class NotificationCronService {
               data: { action: 'download_report', period: lastMonthStr },
             });
             this.logger.log(`Sent monthly report reminder to User ID ${user.id}`);
-          }
+          // }
         }
       }
     } catch (error) {
@@ -162,7 +164,8 @@ export class NotificationCronService {
   }
 
   // 3. Morning Reminder: Setiap hari pukul 07:00 Pagi
-  @Cron('0 7 * * *')
+  // TODO: TESTING - ganti ke production: @Cron('0 7 * * *')
+  @Cron('* * * * *')
   async handleMorningReminder() {
     this.logger.log('Running Morning Reminder Cron Job...');
     try {
@@ -190,18 +193,18 @@ export class NotificationCronService {
           continue;
         }
 
-        // Pastikan belum dikirimi notifikasi serupa hari ini
-        const alreadyNotified = await this.notificationModel.count({
-          where: {
-            notified_user_id: user.id,
-            type: 'morning_reminder',
-            created_at: {
-              [Op.gte]: new Date(todayStr + 'T00:00:00.000Z'),
-            },
-          },
-        });
+        // TODO: TESTING - uncomment pengecekan duplikasi untuk production
+        // const alreadyNotified = await this.notificationModel.count({
+        //   where: {
+        //     notified_user_id: user.id,
+        //     type: 'morning_reminder',
+        //     created_at: {
+        //       [Op.gte]: new Date(todayStr + 'T00:00:00.000Z'),
+        //     },
+        //   },
+        // });
 
-        if (alreadyNotified === 0) {
+        // if (alreadyNotified === 0) {
           this.eventEmitter.emit('notification', ['system'], {
             type: 'morning_reminder',
             notified_user_id: user.id,
@@ -209,7 +212,7 @@ export class NotificationCronService {
             data: { action: 'view_dashboard' },
           });
           this.logger.log(`Sent morning reminder to User ID ${user.id}`);
-        }
+        // }
       }
     } catch (error) {
       this.logger.error('Error executing Morning Reminder Cron Job', error);
