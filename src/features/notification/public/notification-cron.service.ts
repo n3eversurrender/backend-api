@@ -215,5 +215,41 @@ export class NotificationCronService {
       this.logger.error('Error executing Morning Reminder Cron Job', error);
     }
   }
+
+  // 4. Test Cron: Setiap menit (untuk mempermudah testing push notification di production)
+  @Cron('*/1 * * * *')
+  async handleTestCron() {
+    this.logger.log('Running Test Push Notification Cron (Every Minute)...');
+    try {
+      const users = await this.userModel.findAll({
+        where: {
+          role: { [Op.ne]: 1 },
+        },
+      });
+
+      for (const user of users) {
+        this.eventEmitter.emit('notification', ['system'], {
+          type: 'test_notification',
+          notified_user_id: user.id,
+          message: `Tes Notifikasi Otomatis! Waktu Server: ${new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB`,
+          data: { action: 'test_cron' },
+        });
+        this.logger.log(`Sent test push notification to User ID ${user.id}`);
+      }
+    } catch (error) {
+      this.logger.error('Error executing Test Cron Job', error);
+    }
+  }
+
+  // Helper untuk trigger test push secara manual & instan
+  async triggerTestPush(userId: number) {
+    this.eventEmitter.emit('notification', ['system'], {
+      type: 'test_notification',
+      notified_user_id: userId,
+      message: `Tes Notifikasi Instan! Waktu: ${new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}`,
+      data: { action: 'test' },
+    });
+    this.logger.log(`Manually triggered test push for User ID ${userId}`);
+  }
 }
 

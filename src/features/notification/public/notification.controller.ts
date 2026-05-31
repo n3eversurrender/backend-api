@@ -21,13 +21,19 @@ export class NotificationController {
 
   @UseGuards(JwtAuthGuard)
   @Get('trigger-cron/:type')
-  async triggerCron(@Param('type') type: string) {
+  async triggerCron(@Param('type') type: string, @CurrentUser() user: any) {
     if (type === 'daily') {
       await this.notificationCronService.handleDailyReminder();
       return { message: 'Daily reminder cron triggered successfully' };
     } else if (type === 'monthly') {
       await this.notificationCronService.handleMonthlyReportReminder();
       return { message: 'Monthly reminder cron triggered successfully' };
+    } else if (type === 'morning') {
+      await this.notificationCronService.handleMorningReminder();
+      return { message: 'Morning reminder cron triggered successfully' };
+    } else if (type === 'test') {
+      await this.notificationCronService.triggerTestPush(user.id);
+      return { message: 'Test notification triggered successfully for your account' };
     }
     return { error: 'Invalid cron type' };
   }
